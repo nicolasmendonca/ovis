@@ -627,6 +627,53 @@ ol.markdown-list {
   color: var(--text-dim);
 }
 
+.markdown-quote-tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.btn.markdown-quote-copy {
+  width: var(--control-h);
+  min-height: var(--control-h);
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+}
+
+@media (hover: hover) {
+  .btn.markdown-quote-copy:hover {
+    background: transparent;
+    border: none;
+    color: var(--primary);
+  }
+}
+
+.btn.markdown-quote-copy:focus-visible {
+  color: var(--primary);
+}
+
+.btn.markdown-quote-copy:active {
+  color: var(--accent);
+}
+
+.markdown-quote-copy svg {
+  width: var(--fs-sm);
+  height: var(--fs-sm);
+}
+
+.markdown-quote-tools .markdown-code-error {
+  flex-basis: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .markdown :not(pre) > code {
   padding: var(--hairline) var(--space-1);
   border-radius: var(--radius-sm);

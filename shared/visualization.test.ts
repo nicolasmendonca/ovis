@@ -13,8 +13,8 @@ describe("Codex visualization references", () => {
     expect(parseMarkdown(`Before\n${line}`)).toEqual([{ type: "paragraph", lines: [text("Before"), text(line)] }]);
     expect(parseMarkdown(`Before\n${line}`, 0, true)).toEqual([{ type: "paragraph", lines: [text("Before"), text(line)] }]);
     expect(parseMarkdown(`- Item\n  ${line}\n- Next`)).toEqual([{ type: "list", ordered: false, items: [{ content: [...text("Item"), ...text(" "), ...text(line)] }, { content: text("Next") }] }]);
-    expect(parseMarkdown(`> ${line}`)).toEqual([{ type: "blockquote", blocks: [{ type: "paragraph", lines: [text(line)] }] }]);
-    expect(answer(`> ${line}`)).toEqual([{ type: "blockquote", blocks: [{ type: "visualization", path: "/repo/diagram.html" }] }]);
+    expect(parseMarkdown(`> ${line}`)).toEqual([{ type: "blockquote", source: line, blocks: [{ type: "paragraph", lines: [text(line)] }] }]);
+    expect(answer(`> ${line}`)).toEqual([{ type: "blockquote", source: line, blocks: [{ type: "visualization", path: "/repo/diagram.html" }] }]);
   });
   it("recognizes an absolute HTML file, metadata and Windows paths as a block between prose", () => {
     const line = directive({ path: "/repo/도식 with spaces.html", mode: "wide", title: " Before / After " });

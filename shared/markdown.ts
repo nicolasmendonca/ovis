@@ -43,7 +43,7 @@ export type MarkdownBlock =
   | { type: "heading"; level: 1 | 2 | 3 | 4 | 5 | 6; content: InlineNode[]; align?: "center" }
   | { type: "paragraph"; lines: InlineNode[][]; align?: "center" }
   | ListBlock
-  | { type: "blockquote"; blocks: MarkdownBlock[] }
+  | { type: "blockquote"; blocks: MarkdownBlock[]; source?: string }
   | { type: "code"; language: string; value: string }
   | { type: "table"; header: InlineNode[][]; rows: InlineNode[][][] }
   | { type: "hr" };
@@ -560,7 +560,7 @@ export function parseMarkdown(source: string, depth = 0, html = false, visualiza
       const quoted: string[] = [];
       while (index < lines.length && /^\s*>/.test(lineAt(lines, index))) quoted.push(lineAt(lines, index++).replace(/^\s*>\s?/, ""));
       // a line of thousands of ">" (text nobody wrote by hand) would otherwise overflow the stack
-      blocks.push({ type: "blockquote", blocks: depth < MAX_QUOTE_DEPTH ? parseMarkdown(quoted.join("\n"), depth + 1, html, visualizations)
+      blocks.push({ type: "blockquote", source: quoted.join("\n"), blocks: depth < MAX_QUOTE_DEPTH ? parseMarkdown(quoted.join("\n"), depth + 1, html, visualizations)
         : [{ type: "paragraph", lines: quoted.map((quotedLine) => parseInline(quotedLine)) }] });
       continue;
     }

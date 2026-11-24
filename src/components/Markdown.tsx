@@ -387,6 +387,42 @@ function CodeBlock({ language, value }: { language: string; value: string }) {
   );
 }
 
+function QuoteBlock({ blocks, source }: { blocks: MarkdownBlock[]; source: string }) {
+  const t = useT();
+  const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const request = useRef(0);
+  useLayoutEffect(() => {
+    setCopied(false);
+    setCopyFailed(false);
+    return () => {
+      request.current++;
+      clearTimeout(timer.current);
+    };
+  }, [source]);
+  const copy = async (): Promise<void> => {
+    const current = ++request.current;
+    clearTimeout(timer.current);
+    setCopied(false);
+    setCopyFailed(false);
+    const ok = await copyText(source);
+    if (request.current !== current) return;
+    setCopied(ok);
+    setCopyFailed(!ok);
+    if (ok) timer.current = setTimeout(() => setCopied(false), 1500);
+  };
+  return <blockquote>
+    <div className="markdown-quote-tools">
+      <button type="button" className="btn markdown-quote-copy" onClick={copy} aria-label={t(copied ? "Copied" : "Copy")} title={t(copied ? "Copied" : "Copy")}>
+        {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+      </button>
+      {copyFailed && <p className="markdown-code-error" role="alert">{t("Couldn't copy. Select the text and copy it manually.")}</p>}
+    </div>
+    <Blocks blocks={blocks} />
+  </blockquote>;
+}
+
 function Blocks({ blocks }: { blocks: MarkdownBlock[] }) {
   const visualizations = new Map<string, number>();
   return <>{blocks.map((block, index): ReactNode => {
@@ -402,7 +438,9 @@ function Blocks({ blocks }: { blocks: MarkdownBlock[] }) {
       case "paragraph":
         return <p key={key} className={block.align ? "markdown-center" : undefined}>{block.lines.map((line, lineIndex) => <span key={lineIndex}><Inline nodes={line} standalone={standaloneImage(line)} />{lineIndex < block.lines.length - 1 && <br />}</span>)}</p>;
       case "list": return <List key={key} block={block} />;
-      case "blockquote": return <blockquote key={key}><Blocks blocks={block.blocks} /></blockquote>;
+      case "blockquote": return block.source === undefined
+        ? <blockquote key={key}><Blocks blocks={block.blocks} /></blockquote>
+        : <QuoteBlock key={key} blocks={block.blocks} source={block.source} />;
       case "code": return block.language === "mermaid"
         ? <MermaidDiagram key={key} value={block.value} />
         : block.language.toLowerCase() === "svg"
