@@ -51,7 +51,7 @@ describe("previewElements", () => {
     Object.defineProperty(navigator, "languages", { configurable: true, value: ["en"] });
     try {
       for (const source of [
-        "# Title", "one **two**\nthree", "- a\n- b\n  - c", "> - a",
+        "# Title", "one **two**\nthree", "- a\n- b\n  - c", "> - a", "> > - a",
         "- [x] done\n".repeat(300), "- [ ] open\n".repeat(300), "- a\n".repeat(300),
         "a/a.c ".repeat(500), "`src/a.ts` and `x` ".repeat(200), "\\(x_i + y\\) ".repeat(100),
         "\\[" + "a+".repeat(300) + "a\\]",
@@ -66,6 +66,19 @@ describe("previewElements", () => {
       if (languages) Object.defineProperty(navigator, "languages", languages);
       else Reflect.deleteProperty(navigator, "languages");
     }
+  });
+
+  it("reserves quote toolbar elements only for source-backed quotes, including nested ones", () => {
+    const blocks = parseMarkdown("- a");
+    const sourceLess = { type: "blockquote" as const, blocks };
+    const sourced = { ...sourceLess, source: "- a" };
+    expect(previewElements([sourceLess])).toBe(1 + previewElements(blocks));
+    expect(previewElements([sourced])).toBe(previewElements([sourceLess]) + 6);
+    expect(previewElements([{ ...sourced, source: "" }])).toBe(previewElements([sourced]));
+    expect(previewElements([{ type: "blockquote", source: "> - a", blocks: [sourced] }]))
+      .toBe(1 + previewElements([sourceLess]) + 6 + 6);
+    expect(previewElements([{ type: "blockquote", blocks: [sourced] }]))
+      .toBe(1 + previewElements([sourceLess]) + 6);
   });
 
   it("puts a file of the load limit's short list items past what a Preview draws", () => {

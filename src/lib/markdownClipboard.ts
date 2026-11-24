@@ -15,7 +15,7 @@ export interface ClipboardPayload {
 
 const OMIT = new Set(["BUTTON", "INPUT", "SCRIPT", "STYLE", "TEMPLATE", "SVG", "IFRAME", "OBJECT", "EMBED", "LINK", "META"]);
 const HTML_TAGS = new Set(["P", "BR", "HR", "PRE", "CODE", "STRONG", "B", "EM", "I", "DEL", "S", "A", "UL", "OL", "LI", "BLOCKQUOTE", "TABLE", "THEAD", "TBODY", "TR", "TH", "TD", "H1", "H2", "H3", "H4", "H5", "H6"]);
-const OMIT_CLASSES = new Set(["markdown-code-header", "markdown-code-error", "hl-note", "chat-turn-meta", "chat-meta", "sr-only"]);
+const OMIT_CLASSES = new Set(["markdown-quote-tools", "markdown-code-header", "markdown-code-error", "hl-note", "chat-turn-meta", "chat-meta", "sr-only"]);
 const attr = (node: ClipboardNode, name: string): string | undefined => node.attrs?.[name];
 const children = (node: ClipboardNode): readonly ClipboardNode[] => node.children ?? [];
 const visible = (node: ClipboardNode): boolean => (!OMIT.has(node.tag) || (node.tag === "BUTTON" && (attr(node, "class") ?? "").split(/\s+/).includes("markdown-file"))) && attr(node, "aria-hidden") !== "true" && !(attr(node, "class") ?? "").split(/\s+/).some((name) => OMIT_CLASSES.has(name));

@@ -6,6 +6,17 @@ const element = (tag: string, content: readonly ClipboardNode[], attrs?: Record<
 const html = (nodes: readonly ClipboardNode[]): string => renderedClipboardPayload(nodes, "").html;
 
 describe("renderedClipboardPayload", () => {
+  test("leaves quote controls and feedback out of rich HTML", () => {
+    expect(html([element("BLOCKQUOTE", [
+      element("DIV", [
+        element("BUTTON", [text("Copy")]),
+        element("SPAN", [text("Copied")], { role: "status" }),
+        element("P", [text("Couldn't copy. Select the text and copy it manually.")]),
+      ], { class: "markdown-quote-tools" }),
+      element("P", [text("Quote")]),
+    ])])).toBe("<blockquote><p>Quote</p></blockquote>");
+  });
+
   test("rebuilds headings, lists, emphasis and safe links as rich HTML", () => {
     expect(html([
       element("H3", [text("Plan")], { class: "markdown-h1" }),

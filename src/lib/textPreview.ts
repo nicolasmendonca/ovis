@@ -65,7 +65,11 @@ function blockElements(blocks: readonly MarkdownBlock[]): number {
     if (block.type === "heading") count += inlineElements(block.content);
     else if (block.type === "paragraph") for (const line of block.lines) count += 2 + inlineElements(line);
     else if (block.type === "list") for (const item of block.items) count += 1 + (item.checked === undefined ? 0 : 4) + inlineElements(item.content) + blockElements(item.blocks ?? []);
-    else if (block.type === "blockquote") count += blockElements(block.blocks);
+    else if (block.type === "blockquote") {
+      // Source-backed quotes also draw a toolbar: div, button, SVG with two shapes,
+      // and a possible copy-error paragraph. Source-less ASTs draw only the quote and its children.
+      count += blockElements(block.blocks) + (block.source === undefined ? 0 : 6);
+    }
     else if (block.type === "table") {
       count += 3;
       for (const row of [block.header, ...block.rows]) { count += 1; for (const cell of row) count += 1 + inlineElements(cell); }
